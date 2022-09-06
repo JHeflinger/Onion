@@ -1,12 +1,13 @@
-import qt_onion
-import sys
 from PyQt5.QtWidgets import QApplication
+import sys
+from qt_onion import MainWindow
 
-def main():
+if __name__ == '__main__':
+ 
+    # create application
     app = QApplication(sys.argv)
-    main = Main()
-    main.show() 
-    sys.exit(app.exec_())
-     
-if __name__ == "__main__":
-    main()
+    app.setApplicationName("Onion")
+    window = MainWindow()
+ 
+    # execute app
+    app.exec_()
