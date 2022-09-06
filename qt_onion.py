@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         if fname[0] != "":
             self.files.append(fname)
             file_content = onion.GetFileContent(fname[0])
-            self.tabs.addTab(EditorWindow(file_content, fname[0]), fname[0].split("/")[len(fname[0].split("/")) - 1])
+            self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
             
     def openShell(self):
         dlg = ShellDialog()
@@ -102,15 +102,27 @@ class ShellDialog(QDialog):
         self.setLayout(self.layout)
 
 class EditorWindow(QPlainTextEdit):
-    def __init__(self, txt, filename):
+    def __init__(self, txt, filename, tabWidget):
         super().__init__(txt)
         self.filename = filename
-        self.saved = False
+        self.tabWidget = tabWidget
+        
+        #set up save mirroring
+        self.saved = True
+        self.textChanged.connect(self.unsave)
         
         # setting font to the editor
         fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         fixedfont.setPointSize(12)
         self.setFont(fixedfont)
         
+    def unsave(self):
+        print("unsaved")
+        if self.saved:
+            self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.tabWidget.tabText(self.tabWidget.currentIndex()) + "*")
+            self.saved = False
+        
     def save(self):
         self.saved = onion.SaveFile(self.saved, self.toPlainText(), self.filename) 
+        if self.saved:
+            self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
