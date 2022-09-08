@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self._createShortCuts()
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.closeTab)
         self.setCentralWidget(self.tabs)
         self.show()
     
@@ -59,6 +60,11 @@ class MainWindow(QMainWindow):
         self.shortcut_run = QShortcut(QKeySequence('Ctrl+R'), self)
         self.shortcut_run.activated.connect(self.runScript)
       
+    def closeTab(self, index):
+        print(index)
+        self.files.pop(index)
+        self.tabs.removeTab(index)
+
     def save(self):
         self.tabs.currentWidget().save()
 
@@ -125,6 +131,9 @@ class EditorWindow(QPlainTextEdit):
         fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         fixedfont.setPointSize(12)
         self.setFont(fixedfont)
+
+        #disable text wrapping
+        self.setLineWrapMode(QPlainTextEdit.NoWrap)
 
     def runScript(self):
         success = onion.RunScript(self.toPlainText(), self.filename)
