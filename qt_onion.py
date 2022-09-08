@@ -10,7 +10,7 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.files = []
-        self.setWindowTitle("LIHKT")
+        self.setWindowTitle("Onion v0.02")
         self.resize(QSize(900, 500))
         self._createActions()
         self._connectActions()
@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.saveAction = QAction("&Save (ctrl+s)", self)
         self.saveAsAction = QAction("&Save As", self)
         self.shellAction = QAction("&Shell (alt+s)", self)
+        self.runAction = QAction("&Run Script(ctrl+r)", self)
     
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -36,6 +37,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(self.saveAsAction)
         fileMenu.addSeparator()
         fileMenu.addAction(self.shellAction)
+        fileMenu.addAction(self.runAction)
 
     def _connectActions(self):
         self.openAction.triggered.connect(self.openFile)
@@ -44,6 +46,7 @@ class MainWindow(QMainWindow):
         self.saveAction.triggered.connect(self.save)
         #self.saveAsAction.triggered.connect(self.cutContent)
         self.shellAction.triggered.connect(self.openShell)
+        self.runAction.triggered.connect(self.runScript)
       
     def _createShortCuts(self):
         self.shortcut_save = QShortcut(QKeySequence('Ctrl+S'), self)
@@ -52,9 +55,14 @@ class MainWindow(QMainWindow):
         self.shortcut_open.activated.connect(self.openFile)
         self.shortcut_shell = QShortcut(QKeySequence('Alt+S'), self)
         self.shortcut_shell.activated.connect(self.openShell)
+        self.shortcut_run = QShortcut(QKeySequence('Ctrl+R'), self)
+        self.shortcut_run.activated.connect(self.runScript)
       
     def save(self):
         self.tabs.currentWidget().save()
+
+    def runScript(self):
+        self.tabs.currentWidget().runScript()
         
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\',"Onion Supported Files (*.txt *.py)")
@@ -115,6 +123,11 @@ class EditorWindow(QPlainTextEdit):
         fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         fixedfont.setPointSize(12)
         self.setFont(fixedfont)
+
+    def runScript(self):
+        success = onion.RunScript(self.toPlainText(), self.filename)
+        if not success:
+            print("error. script failed to run.")
         
     def unsave(self):
         print("unsaved")

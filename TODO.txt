@@ -5,5 +5,4 @@ add shell
 add console
 DARK MODE!!
 automatically open files that were open on close
-this is a test line
-we can delete these lines later
+on open file select that widget editor
