@@ -10,4 +10,11 @@ automatically open files that were open on close
 add line numbers
 add highlighted line
 add smart highlighting
+smart tab uses 4 spaces instead based on file format
+cntrl tab swaps tabs
+make a settings document
+command line open file (onion text.txt)
+project explorer
+open project/folder
+MACROS?!?
 

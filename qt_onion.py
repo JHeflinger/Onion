@@ -9,7 +9,6 @@ import onion
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
-        self.files = []
         self.setWindowTitle("Onion v0.02")
         self.resize(QSize(900, 500))
         self._createActions()
@@ -23,10 +22,10 @@ class MainWindow(QMainWindow):
         self.show()
     
     def _createActions(self):
-        self.newFileAction = QAction("&New File", self)
+        self.newFileAction = QAction("&New File (ctrl+n)", self)
         self.openAction = QAction("&Open (ctrl+o)", self)
         self.saveAction = QAction("&Save (ctrl+s)", self)
-        self.saveAsAction = QAction("&Save As", self)
+        self.saveAsAction = QAction("&Save As (ctrl+a+s)", self)
         self.shellAction = QAction("&Shell (alt+s)", self)
         self.runAction = QAction("&Run Script(ctrl+r)", self)
     
@@ -43,12 +42,11 @@ class MainWindow(QMainWindow):
 
     def _connectActions(self):
         self.openAction.triggered.connect(self.openFile)
-        #self.importThemesAction.triggered.connect(self.close)
-        #self.importElementsAction.triggered.connect(self.copyContent)
         self.saveAction.triggered.connect(self.save)
-        #self.saveAsAction.triggered.connect(self.cutContent)
+        self.saveAsAction.triggered.connect(self.saveAs)
         self.shellAction.triggered.connect(self.openShell)
         self.runAction.triggered.connect(self.runScript)
+        self.newFileAction.triggered.connect(self.newFile)
       
     def _createShortCuts(self):
         self.shortcut_save = QShortcut(QKeySequence('Ctrl+S'), self)
@@ -59,22 +57,32 @@ class MainWindow(QMainWindow):
         self.shortcut_shell.activated.connect(self.openShell)
         self.shortcut_run = QShortcut(QKeySequence('Ctrl+R'), self)
         self.shortcut_run.activated.connect(self.runScript)
+        self.shortcut_new = QShortcut(QKeySequence('Ctrl+N'), self)
+        self.shortcut_new.activated.connect(self.newFile)
+        self.shortcut_saveas = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
+        self.shortcut_saveas.activated.connect(self.saveAs)
       
     def closeTab(self, index):
         print(index)
-        self.files.pop(index)
         self.tabs.removeTab(index)
 
     def save(self):
         self.tabs.currentWidget().save()
 
+    def saveAs(self):
+        self.tabs.currentWidget().saveAs()
+
     def runScript(self):
         self.tabs.currentWidget().runScript()
         
+    def newFile(self):
+        print("new file")
+        self.tabs.addTab(EditorWindow("", "", self.tabs), "Untitled File")
+        self.tabs.setCurrentIndex(self.tabs.count() - 1)
+
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\',"Onion Supported Files (*.txt *.py)")
         if fname[0] != "":
-            self.files.append(fname)
             file_content = onion.GetFileContent(fname[0])
             self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
             self.tabs.setCurrentIndex(self.tabs.count() - 1)
@@ -147,6 +155,15 @@ class EditorWindow(QPlainTextEdit):
             self.saved = False
         
     def save(self):
-        self.saved = onion.SaveFile(self.saved, self.toPlainText(), self.filename) 
-        if self.saved:
-            self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
+        if self.filename == "":
+            self.saveAs()
+        else:
+            self.saved = onion.SaveFile(self.saved, self.toPlainText(), self.filename) 
+            if self.saved:
+                self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
+
+    def saveAs(self):
+        print("save as")
+        self.filename = QFileDialog.getSaveFileName(self, 'Save File')[0]
+        self.saved = onion.SaveFile(False, self.toPlainText(), self.filename) 
+        self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
