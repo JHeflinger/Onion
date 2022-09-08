@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
         self._createMenuBar()
         self._createShortCuts()
         self.tabs = QTabWidget()
+        self.tabs.setTabsClosable(True)
         self.setCentralWidget(self.tabs)
         self.show()
     
@@ -70,6 +71,7 @@ class MainWindow(QMainWindow):
             self.files.append(fname)
             file_content = onion.GetFileContent(fname[0])
             self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
+            self.tabs.setCurrentIndex(self.tabs.count() - 1)
             
     def openShell(self):
         dlg = ShellDialog()

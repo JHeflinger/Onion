@@ -1,8 +1,14 @@
+make tabs...closeable
+add open recent
 DEBUG LOg
-Run scripts (python, etc)
+?Run scripts (python, etc)
 shell should be in console form
 add shell
 add console
 DARK MODE!!
 automatically open files that were open on close
+get rid of text wrapping
+add line numbers
+add highlighted line
+add smart highlighting
 on open file select that widget editor
