@@ -100,6 +100,9 @@ class MainWindow(QMainWindow):
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
         if fname[0] != "":
+            if fname[0] in self.openfiles:
+                self.tabs.setCurrentIndex(self.openfiles.index(fname[0]))
+                return
             file_content = onion.GetFileContent(fname[0])
             self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
             self.tabs.setCurrentIndex(self.tabs.count() - 1)

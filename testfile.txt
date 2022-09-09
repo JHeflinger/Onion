@@ -1,4 +1,0 @@
-oqijoijwd
-openfiles::/home/jason/repos/Onion/testfile.txt$
-openfiles:$
-openfiles::/home/jason/repos/Onion/testfile.txt$

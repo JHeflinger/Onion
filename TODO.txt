@@ -6,17 +6,14 @@ shell should be in console form
 add shell
 add console
 DARK MODE!!
-automatically open files that were open on close
 add line numbers
 add highlighted line
 add smart highlighting
 smart tab uses 4 spaces instead based on file format
 cntrl tab swaps tabs
-make a settings document
 command line open file (onion text.txt)
 project explorer
 open project/folder
 MACROS?!?
 make tabs rearrangeable
-make so cannot open file while already open
 check if file changes were made outside of editor and reload file accordingly
