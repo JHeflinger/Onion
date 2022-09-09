@@ -26,3 +26,39 @@ def RunScript(scriptcontent, scriptname):
             return False
     else:
         return False
+
+def SettingsWrite_OPENED(files):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    print(currentdir)
+    writestring = "openfiles:"
+    for f in files:
+        writestring += (f + "?")
+    writestring = writestring[0:len(writestring) - 1] + ":\n"
+    lines = []
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.fhist", "w") as f:
+        lines[0] = writestring
+        f.writelines(lines)
+
+def SettingsGet_OPENED():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        return f.readlines()[0].split(":")[1].split("?")
+
+def SettingsWrite_SELECTED(index):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    lines = []
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.fhist", "w") as f:
+        lines[1] = "selectedfile:" + index.__str__() + ":\n"
+        f.writelines(lines)
+
+def SettingsGet_SELECTED():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        return int(f.readlines()[1].split(":")[1])
+        
+        
+    

@@ -17,4 +17,6 @@ command line open file (onion text.txt)
 project explorer
 open project/folder
 MACROS?!?
-
+make tabs rearrangeable
+make so cannot open file while already open
+check if file changes were made outside of editor and reload file accordingly

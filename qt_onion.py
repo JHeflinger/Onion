@@ -11,6 +11,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setWindowTitle("Onion v0.02")
         self.resize(QSize(900, 500))
+        self.openfiles = []
         self._createActions()
         self._connectActions()
         self._createMenuBar()
@@ -18,9 +19,19 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.closeTab)
+        self.tabs.currentChanged.connect(self.updateCurrentTab)
         self.setCentralWidget(self.tabs)
+        self._startup()
         self.show()
     
+    def _startup(self):
+        print("startup sequence")
+        opened_files = onion.SettingsGet_OPENED()
+        selected_tab = onion.SettingsGet_SELECTED()
+        for f in opened_files:
+            self.openFileByName(f)
+        self.tabs.setCurrentIndex(selected_tab)
+
     def _createActions(self):
         self.newFileAction = QAction("&New File (ctrl+n)", self)
         self.openAction = QAction("&Open (ctrl+o)", self)
@@ -62,9 +73,15 @@ class MainWindow(QMainWindow):
         self.shortcut_saveas = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
         self.shortcut_saveas.activated.connect(self.saveAs)
       
+    def updateCurrentTab(self, index):
+        print(index)
+        onion.SettingsWrite_SELECTED(index)
+
     def closeTab(self, index):
         print(index)
+        self.openfiles.remove(self.tabs.widget(index).filename)
         self.tabs.removeTab(index)
+        onion.SettingsWrite_OPENED(self.openfiles)
 
     def save(self):
         self.tabs.currentWidget().save()
@@ -81,11 +98,20 @@ class MainWindow(QMainWindow):
         self.tabs.setCurrentIndex(self.tabs.count() - 1)
 
     def openFile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\',"Onion Supported Files (*.txt *.py)")
+        fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
         if fname[0] != "":
             file_content = onion.GetFileContent(fname[0])
             self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
             self.tabs.setCurrentIndex(self.tabs.count() - 1)
+            self.openfiles.append(fname[0])
+            onion.SettingsWrite_OPENED(self.openfiles)
+
+    def openFileByName(self, filename):
+        file_content = onion.GetFileContent(filename)
+        self.tabs.addTab(EditorWindow(file_content, filename, self.tabs), filename.split("/")[len(filename.split("/")) - 1])
+        self.tabs.setCurrentIndex(self.tabs.count() - 1)
+        self.openfiles.append(filename)
+        onion.SettingsWrite_OPENED(self.openfiles)
             
     def openShell(self):
         dlg = ShellDialog()
