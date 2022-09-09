@@ -1,4 +1,3 @@
-make tabs prompt save when closing
 add open recent
 DEBUG LOg
 ?Run scripts (python, etc)
@@ -14,6 +13,7 @@ cntrl tab swaps tabs
 command line open file (onion text.txt)
 project explorer
 open project/folder
+collapsable functions/classes
 MACROS?!?
 check if file changes were made outside of editor and reload file accordingly
 

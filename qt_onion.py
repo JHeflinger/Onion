@@ -25,6 +25,16 @@ class MainWindow(QMainWindow):
         self._startup()
         self.show()
     
+    def closeEvent(self, event):
+        unsavedwork = False
+        for i in range(self.tabs.count()):
+            if self.tabs.widget(i).saved == False:
+                unsavedwork = True
+        if unsavedwork:
+            dlg = ConfirmDialog("You have unsaved work! Would you like to go back and save your work?")
+            if dlg.exec():
+                event.ignore()
+            
     def _startup(self):
         print("startup sequence")
         opened_files = onion.SettingsGet_OPENED()
@@ -80,9 +90,14 @@ class MainWindow(QMainWindow):
 
     def closeTab(self, index):
         print(index)
-        self.openfiles.remove(self.tabs.widget(index).filename)
-        self.tabs.removeTab(index)
-        onion.SettingsWrite_OPENED(self.openfiles)
+        readytoclose = True
+        if self.tabs.widget(index).saved == False:
+            dlg = ConfirmDialog("Warning: You have unsaved work! Are you sure you'd like to continue?")
+            readytoclose = dlg.exec()
+        if readytoclose:
+            self.openfiles.remove(self.tabs.widget(index).filename)
+            self.tabs.removeTab(index)
+            onion.SettingsWrite_OPENED(self.openfiles)
 
     def save(self):
         self.tabs.currentWidget().save()
@@ -126,13 +141,27 @@ class MainWindow(QMainWindow):
                 dlg2 = notifyDialog("ERROR IN EXECUTING SCRIPT")
                 dlg2.exec()
 
-class notifyDialog(QDialog):
+class NotifyDialog(QDialog):
     def __init__(self, msg):
         super().__init__()
         self.setWindowTitle("Notification")
         QBtn = QDialogButtonBox.Ok
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.accepted.connect(self.accept)
+        self.layout = QVBoxLayout()
+        message = QLabel(msg)
+        self.layout.addWidget(message)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+class ConfirmDialog(QDialog):
+    def __init__(self, msg):
+        super().__init__()
+        self.setWindowTitle("Confirm")
+        QBtn = QDialogButtonBox.Cancel | QDialogButtonBox.Ok
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
         self.layout = QVBoxLayout()
         message = QLabel(msg)
         self.layout.addWidget(message)
