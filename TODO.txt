@@ -15,5 +15,7 @@ command line open file (onion text.txt)
 project explorer
 open project/folder
 MACROS?!?
-make tabs rearrangeable
 check if file changes were made outside of editor and reload file accordingly
+
+Bug log:
+	- when rearranging tabs, opening new onion doesn't save the new order

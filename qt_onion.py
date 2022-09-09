@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self._createShortCuts()
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
+        self.tabs.setMovable(True)
         self.tabs.tabCloseRequested.connect(self.closeTab)
         self.tabs.currentChanged.connect(self.updateCurrentTab)
         self.setCentralWidget(self.tabs)
