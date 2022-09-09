@@ -112,6 +112,8 @@ class MainWindow(QMainWindow):
         print("new file")
         self.tabs.addTab(EditorWindow("", "", self.tabs), "Untitled File")
         self.tabs.setCurrentIndex(self.tabs.count() - 1)
+        self.openfiles.append("")
+        onion.SettingsWrite_OPENED(self.openfiles)
 
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')

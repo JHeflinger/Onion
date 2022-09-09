@@ -43,8 +43,11 @@ def SettingsWrite_OPENED(files):
 
 def SettingsGet_OPENED():
     currentdir = os.path.dirname(os.path.abspath(__file__))
-    with open(currentdir + "/Settings/settings.fhist", "r") as f:
-        return f.readlines()[0].split(":")[1].split("?")
+    try:
+        with open(currentdir + "/Settings/settings.fhist", "r") as f:
+            return f.readlines()[0].split(":")[1].split("?")
+    except:
+        return []
 
 def SettingsWrite_SELECTED(index):
     currentdir = os.path.dirname(os.path.abspath(__file__))
