@@ -9,13 +9,16 @@ add line numbers
 add highlighted line
 add smart highlighting
 smart tab uses 4 spaces instead based on file format
-cntrl tab swaps tabs
 command line open file (onion text.txt)
 project explorer
 open project/folder
+QSYNTAXHIGHLIGHTER
 collapsable functions/classes
 MACROS?!?
+remember last directory opened
+be able to edit shortcuts
 check if file changes were made outside of editor and reload file accordingly
+control f and replace
 
 Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order

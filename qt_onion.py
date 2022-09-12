@@ -40,19 +40,24 @@ class MainWindow(QMainWindow):
         opened_files = onion.SettingsGet_OPENED()
         selected_tab = onion.SettingsGet_SELECTED()
         for f in opened_files:
-            self.openFileByName(f)
+            if f != "":
+                self.openFileByName(f)
         self.tabs.setCurrentIndex(selected_tab)
 
     def _createActions(self):
+        #file menu actions
         self.newFileAction = QAction("&New File (ctrl+n)", self)
         self.openAction = QAction("&Open (ctrl+o)", self)
         self.saveAction = QAction("&Save (ctrl+s)", self)
         self.saveAsAction = QAction("&Save As (ctrl+a+s)", self)
         self.shellAction = QAction("&Shell (alt+s)", self)
         self.runAction = QAction("&Run Script(ctrl+r)", self)
+        #settings menu actions
+        self.shortcutsAction = QAction("&Shortcuts", self)
     
     def _createMenuBar(self):
         menuBar = self.menuBar()
+        #file menu
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(self.newFileAction)
         fileMenu.addAction(self.openAction)
@@ -61,6 +66,9 @@ class MainWindow(QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.shellAction)
         fileMenu.addAction(self.runAction)
+        #settings menu
+        settingsMenu = menuBar.addMenu("&Settings")
+        settingsMenu.addAction(self.shortcutsAction)	
 
     def _connectActions(self):
         self.openAction.triggered.connect(self.openFile)
@@ -95,15 +103,23 @@ class MainWindow(QMainWindow):
             dlg = ConfirmDialog("Warning: You have unsaved work! Are you sure you'd like to continue?")
             readytoclose = dlg.exec()
         if readytoclose:
+            print("closing " + self.tabs.widget(index).filename)
+            print("removing from ")
+            print(self.openfiles)
             self.openfiles.remove(self.tabs.widget(index).filename)
             self.tabs.removeTab(index)
             onion.SettingsWrite_OPENED(self.openfiles)
 
     def save(self):
-        self.tabs.currentWidget().save()
+        if self.tabs.currentWidget().filename == "":
+            self.saveAs()
+        else:
+            self.tabs.currentWidget().save()
 
     def saveAs(self):
         self.tabs.currentWidget().saveAs()
+        self.openfiles[self.tabs.currentIndex()] = self.tabs.currentWidget().filename
+        onion.SettingsWrite_OPENED(self.openfiles)
 
     def runScript(self):
         self.tabs.currentWidget().runScript()
@@ -210,18 +226,14 @@ class EditorWindow(QPlainTextEdit):
             print("error. script failed to run.")
         
     def unsave(self):
-        print("unsaved")
         if self.saved:
             self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.tabWidget.tabText(self.tabWidget.currentIndex()) + "*")
             self.saved = False
         
     def save(self):
-        if self.filename == "":
-            self.saveAs()
-        else:
-            self.saved = onion.SaveFile(self.saved, self.toPlainText(), self.filename) 
-            if self.saved:
-                self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
+        self.saved = onion.SaveFile(self.saved, self.toPlainText(), self.filename) 
+        if self.saved:
+            self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.filename.split("/")[len(self.filename.split("/")) - 1])
 
     def saveAs(self):
         print("save as")
