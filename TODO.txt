@@ -5,8 +5,6 @@ shell should be in console form
 add shell
 add console
 DARK MODE!!
-add line numbers
-add highlighted line
 add smart highlighting
 smart tab uses 4 spaces instead based on file format
 command line open file (onion text.txt)

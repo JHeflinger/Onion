@@ -54,6 +54,8 @@ class MainWindow(QMainWindow):
         self.runAction = QAction("&Run Script(ctrl+r)", self)
         #settings menu actions
         self.shortcutsAction = QAction("&Shortcuts", self)
+        #window menu actions
+        self.showconsoleAction = QAction("&Show Console (ctrl+shft+c)", self)
     
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -69,6 +71,9 @@ class MainWindow(QMainWindow):
         #settings menu
         settingsMenu = menuBar.addMenu("&Settings")
         settingsMenu.addAction(self.shortcutsAction)	
+        #window menu
+        windowsMenu = menuBar.addMenu("&Windows")
+        windowsMenu.addAction(self.showconsoleAction)
 
     def _connectActions(self):
         self.openAction.triggered.connect(self.openFile)
@@ -77,6 +82,7 @@ class MainWindow(QMainWindow):
         self.shellAction.triggered.connect(self.openShell)
         self.runAction.triggered.connect(self.runScript)
         self.newFileAction.triggered.connect(self.newFile)
+        self.showconsoleAction.triggered.connect(self.showConsole)
       
     def _createShortCuts(self):
         self.shortcut_save = QShortcut(QKeySequence('Ctrl+S'), self)
@@ -91,7 +97,14 @@ class MainWindow(QMainWindow):
         self.shortcut_new.activated.connect(self.newFile)
         self.shortcut_saveas = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
         self.shortcut_saveas.activated.connect(self.saveAs)
+        self.shortcut_showconsole = QShortcut(QKeySequence('Ctrl+Shift+C'), self)
+        self.shortcut_showconsole.activated.connect(self.showConsole)
       
+    def showConsole(self):
+        print("show console!")
+        console = ConsoleWindow()
+        self.addDockWidget(Qt.BottomDockWidgetArea, console)
+
     def updateCurrentTab(self, index):
         print(index)
         onion.SettingsWrite_SELECTED(index)
@@ -158,6 +171,12 @@ class MainWindow(QMainWindow):
             except:
                 dlg2 = notifyDialog("ERROR IN EXECUTING SCRIPT")
                 dlg2.exec()
+
+class ConsoleWindow(QDockWidget):
+    def __init__(self):
+        super().__init__()
+        tmp = QLabel("hello world")
+        self.setWidget(tmp)
 
 class NotifyDialog(QDialog):
     def __init__(self, msg):
@@ -267,7 +286,7 @@ class EditorWindow(QPlainTextEdit):
         extraSelections = []
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            lineColor = QColor(Qt.yellow).lighter(160)
+            lineColor = QColor(Qt.green).lighter(160)
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
