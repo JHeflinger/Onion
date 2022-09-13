@@ -244,7 +244,7 @@ class EditorWindow(QPlainTextEdit):
         while max_value >= 10:
             max_value /= 10
             digits += 1
-        space = 3 + self.fontMetrics().width('9') * digits
+        space = 15 + self.fontMetrics().width('9') * digits
         return space
 
     def updateLineNumberAreaWidth(self, _):
@@ -277,7 +277,6 @@ class EditorWindow(QPlainTextEdit):
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
-
         painter.fillRect(event.rect(), Qt.lightGray)
 
         block = self.firstVisibleBlock()
@@ -291,7 +290,7 @@ class EditorWindow(QPlainTextEdit):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(blockNumber + 1)
                 painter.setPen(Qt.black)
-                painter.drawText(0, int(top), self.lineNumberArea.width(), height, Qt.AlignRight, number)
+                painter.drawText(0, int(top), self.lineNumberArea.width(), height, Qt.AlignRight, number + " ")
 
             block = block.next()
             top = bottom
