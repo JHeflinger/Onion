@@ -2,4 +2,4 @@
 __pycache__/
 
 #file history files ignore (mostly for development to not push to main)
-*.fhist
+Settings/
