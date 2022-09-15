@@ -1,2 +1,5 @@
+#ignore the pycache
 __pycache__/
-Settings/settings.fhist
+
+#file history files ignore (mostly for development to not push to main)
+*.fhist
