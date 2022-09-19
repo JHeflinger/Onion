@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.tabs.tabCloseRequested.connect(self.closeTab)
         self.tabs.currentChanged.connect(self.updateCurrentTab)
         self.setCentralWidget(self.tabs)
+        self.console = ConsoleWindow()
         self._startup()
         self.show()
     
@@ -102,8 +103,8 @@ class MainWindow(QMainWindow):
       
     def showConsole(self):
         print("show console!")
-        console = ConsoleWindow()
-        self.addDockWidget(Qt.BottomDockWidgetArea, console)
+        self.console.setVisible(True)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.console)
 
     def updateCurrentTab(self, index):
         print(index)
@@ -175,8 +176,44 @@ class MainWindow(QMainWindow):
 class ConsoleWindow(QDockWidget):
     def __init__(self):
         super().__init__()
-        tmp = QLabel("hello world")
-        self.setWidget(tmp)
+        self.layout = QVBoxLayout()
+
+        # setting font to the editor
+        fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        fixedfont.setPointSize(11)
+        self.setFont(fixedfont)
+
+        #console and input
+        self.console = QTextEdit("ONION CONSOLE V:0.1.2")
+        self.console.setReadOnly(True)
+        self.input = QLineEdit("")
+        self.input.returnPressed.connect(self.enterCommand)
+
+        #form layout and frame
+        self.layout.addWidget(self.console)
+        self.layout.addWidget(self.input)
+        self.mainWidget = QFrame()
+        self.mainWidget.setLayout(self.layout)
+        self.setWidget(self.mainWidget)
+
+    def enterCommand(self):
+        print("input command")
+        command = self.input.text()
+        self.input.clear()
+        self.print(command)
+        self.processCommand(command)
+
+    def print(self, msg):
+        self.console.append(">> " + msg)
+
+    def output(self, msg):
+        self.console.append("<< " + msg)
+
+    def processCommand(self, msg):
+        if msg == "version":
+            self.output("ONION CONSOLE V:0.1.2")
+        else:
+            self.output("ERROR: Command \"" + msg + "\" not supported")
 
 class NotifyDialog(QDialog):
     def __init__(self, msg):

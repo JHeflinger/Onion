@@ -17,6 +17,17 @@ remember last directory opened
 be able to edit shortcuts
 check if file changes were made outside of editor and reload file accordingly
 control f and replace
+connect ide output to console
+
+add shell and terminal (NOTE: THIS IS SEPARATE FROM CONSOLE) - make this tab style like vscode
+	- one tab is console for onion supported outputs in IDE and onion supported commands
+	- one tab is for terminal which is going to basically just be a terminal
 
 Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order
+	- toggles unsave when typing outside of the widget..
+	- resets a file to a blank file sometimes? (probably because im editing source files in two editors at once, it resets the openfiles)
+
+Add README with dependancies
+-pyqt5
+-pyqtconsole
