@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtPrintSupport import *
 import os
 import sys
+import subprocess
 import onion
 
 class MainWindow(QMainWindow):
@@ -183,14 +184,25 @@ class ConsoleWindow(QDockWidget):
         fixedfont.setPointSize(11)
         self.setFont(fixedfont)
 
-        #console and input
+        #console
         self.console = QTextEdit("ONION CONSOLE V:0.1.2")
         self.console.setReadOnly(True)
+
+        #terminal
+        self.terminal = QTextEdit("ONION TERMINAL V:0.1.1")
+        self.terminal.setReadOnly(True)
+
+        #tabs
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.console, "Console")
+        self.tabs.addTab(self.terminal, "Terminal")
+
+        #input
         self.input = QLineEdit("")
         self.input.returnPressed.connect(self.enterCommand)
 
         #form layout and frame
-        self.layout.addWidget(self.console)
+        self.layout.addWidget(self.tabs)
         self.layout.addWidget(self.input)
         self.mainWidget = QFrame()
         self.mainWidget.setLayout(self.layout)
@@ -200,20 +212,43 @@ class ConsoleWindow(QDockWidget):
         print("input command")
         command = self.input.text()
         self.input.clear()
-        self.print(command)
+        self.printInput(command)
         self.processCommand(command)
 
-    def print(self, msg):
-        self.console.append(">> " + msg)
+    def printInput(self, msg):
+        if self.tabs.currentIndex() == 0:
+            self.console.append(">> " + msg)
+        else:
+            self.terminal.append(">> " + msg)
 
-    def output(self, msg):
+    def consoleOutput(self, msg):
         self.console.append("<< " + msg)
 
+    def terminalOutput(self, msg):
+        self.terminal.append("<< " + msg)
+
     def processCommand(self, msg):
-        if msg == "version":
-            self.output("ONION CONSOLE V:0.1.2")
+        if self.tabs.currentIndex() == 0:
+            self.consoleCommand(msg)
         else:
-            self.output("ERROR: Command \"" + msg + "\" not supported")
+            self.terminalCommand(msg)
+
+    def consoleCommand(self, msg):
+        if msg == "version":
+            self.consoleOutput("ONION CONSOLE V:0.1.2")
+        else:
+            self.consoleOutput("ERROR: Command \"" + msg + "\" not supported")
+
+    def terminalCommand(self, msg):
+        #print(subprocess.run(["ls"], capture_output=True, text=True).stdout)
+        if msg == "version":
+            self.terminalOutput("ONION TERMINAL V:0.1.1")
+        else:
+            process = subprocess.run([msg], capture_output=True, text=True, shell=True)
+            if process.stderr != "":
+                self.terminalOutput(process.stderr)
+            else:
+                self.terminalOutput(process.stdout)
 
 class NotifyDialog(QDialog):
     def __init__(self, msg):

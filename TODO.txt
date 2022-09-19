@@ -18,10 +18,7 @@ be able to edit shortcuts
 check if file changes were made outside of editor and reload file accordingly
 control f and replace
 connect ide output to console
-
-add shell and terminal (NOTE: THIS IS SEPARATE FROM CONSOLE) - make this tab style like vscode
-	- one tab is console for onion supported outputs in IDE and onion supported commands
-	- one tab is for terminal which is going to basically just be a terminal
+make terminal support a continuous shell, not just a single command
 
 Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order
