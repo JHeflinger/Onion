@@ -159,7 +159,7 @@ class MainWindow(QMainWindow):
         onion.SettingsWrite_OPENED(self.openfiles)
 
     def runScript(self):
-        self.tabs.currentWidget().runScript()
+        self.tabs.currentWidget().runScript(self.console)
         
     def newFile(self):
         print("new file")
@@ -509,8 +509,8 @@ class EditorWindow(QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             blockNumber += 1
 
-    def runScript(self):
-        success = onion.RunScript(self.toPlainText(), self.filename)
+    def runScript(self, console):
+        success = onion.RunScript(self.toPlainText(), self.filename, console)
         if not success:
             print("error. script failed to run.")
         

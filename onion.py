@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 def GetFileContent(filename):
     with open(filename, "r") as f:
@@ -14,7 +15,7 @@ def SaveFile(saved, filecontent, filename):
             return False
     return True
 
-def RunScript(scriptcontent, scriptname):
+def RunScript(scriptcontent, scriptname, console):
     #currently supported script types:
     #python
     filetype = scriptname.split(".")[len(scriptname.split(".")) - 1]
@@ -23,6 +24,21 @@ def RunScript(scriptcontent, scriptname):
             os.system("python3 " + scriptname)
             return True
         except:
+            return False
+    elif filetype == "java":
+        print("java")
+        try:
+            filename = scriptname.split("/")[len(scriptname.split("/")) - 1].split(".")[0]
+            pathname = scriptname[0:len(scriptname) - len(filename) - 6]
+            print(filename)
+            print(pathname)
+            os.system("javac " + scriptname)
+            cmd = ['java', '-cp', pathname, filename]
+            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            console.consoleOutput(output.decode("utf-8"))
+            return True
+        except:
+            print(exception)
             return False
     else:
         return False
