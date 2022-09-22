@@ -23,6 +23,8 @@ add actual commands to console
 ....spell check?
 error handling!
 
+your right click menu is kinda weird lol
+
 GET SDL2 RUNNING AND WE CAN INTEGRATE THAT FIRST!!!
 maybe make a configuration to run a set makefile or somethin!
 And then taproot ig

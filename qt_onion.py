@@ -171,8 +171,7 @@ class MainWindow(QMainWindow):
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
         if fname[0] != "":
-            if fname[0] in self.openfiles:
-                self.tabs.setCurrentIndex(self.openfiles.index(fname[0]))
+            if self.navigateToFile(fname[0]):
                 return
             file_content = onion.GetFileContent(fname[0])
             self.tabs.addTab(EditorWindow(file_content, fname[0], self.tabs), fname[0].split("/")[len(fname[0].split("/")) - 1])
@@ -180,7 +179,16 @@ class MainWindow(QMainWindow):
             self.openfiles.append(fname[0])
             onion.SettingsWrite_OPENED(self.openfiles)
 
+    def navigateToFile(self, filename):
+        if filename in self.openfiles:
+            self.tabs.setCurrentIndex(self.openfiles.index(filename))
+            return True 
+        return False
+
     def openFileByName(self, filename):
+        if filename in self.openfiles:
+            self.tabs.setCurrentIndex(self.openfiles.index(filename))
+            return
         file_content = onion.GetFileContent(filename)
         self.tabs.addTab(EditorWindow(file_content, filename, self.tabs), filename.split("/")[len(filename.split("/")) - 1])
         self.tabs.setCurrentIndex(self.tabs.count() - 1)
@@ -210,6 +218,8 @@ class ProjectExplorer(QDockWidget):
 
         #explorer
         self.explorer = QTreeView()
+        self.explorer.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.explorer.customContextMenuRequested.connect(self.openMenu)
         self.model = QFileSystemModel()
         self.model.setRootPath("/")
         self.explorer.setModel(self.model)
@@ -218,6 +228,7 @@ class ProjectExplorer(QDockWidget):
         self.explorer.hideColumn(2)
         self.explorer.hideColumn(3)
         self.explorer.doubleClicked.connect(self.openFile)
+        self.explorer.clicked.connect(self.navigateToFile)
 
         #form layout and frame
         self.layout.addWidget(self.explorer)
@@ -232,6 +243,57 @@ class ProjectExplorer(QDockWidget):
         path = self.explorer.model().filePath(signal)
         if os.path.isfile(path):
             self.mainwindow.openFileByName(path)
+
+    def navigateToFile(self, signal):
+        path = self.explorer.model().filePath(signal)
+        if os.path.isfile(path):
+            self.mainwindow.navigateToFile(path)
+
+    def openMenu(self, position):
+        print("yo")
+        menu = QMenu()
+
+        #delete
+        delAct = QAction("Delete", self)
+        delAct.triggered.connect(self.deleteFile)
+        menu.addAction(delAct)
+
+        #rename
+        renAct = QAction("Rename", self)
+        renAct.triggered.connect(self.renameFile)
+        menu.addAction(renAct)
+
+        #copy
+        cpyAct = QAction("Copy", self)
+        cpyAct.triggered.connect(self.copyFile)
+        menu.addAction(cpyAct)
+
+        #cut
+        cutAct = QAction("Cut", self)
+        cutAct.triggered.connect(self.cutFile)
+        menu.addAction(cutAct)
+
+        #copy path
+        cpyPAct = QAction("Copy Path", self)
+        cpyPAct.triggered.connect(self.copyPath)
+        menu.addAction(cpyPAct)
+
+        menu.exec_(self.explorer.viewport().mapToGlobal(position))
+
+    def deleteFile(self):
+        print("deleting!")
+
+    def renameFile(self):
+        print("renaming!")
+
+    def copyFile(self):
+        print("copying!")
+
+    def cutFile(self):
+        print("cutting!")
+
+    def copyPath(self):
+        print("copying path!")
 
 class ConsoleWindow(QDockWidget):
     def __init__(self):
