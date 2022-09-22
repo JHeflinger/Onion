@@ -19,6 +19,13 @@ check if file changes were made outside of editor and reload file accordingly
 control f and replace
 connect ide output to console
 make terminal support a continuous shell, not just a single command
+add actual commands to console
+....spell check?
+error handling!
+
+GET SDL2 RUNNING AND WE CAN INTEGRATE THAT FIRST!!!
+maybe make a configuration to run a set makefile or somethin!
+And then taproot ig
 
 Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order

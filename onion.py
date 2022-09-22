@@ -63,5 +63,16 @@ def SettingsGet_SELECTED():
     with open(currentdir + "/Settings/settings.fhist", "r") as f:
         return int(f.readlines()[1].split(":")[1])
         
-        
+def SettingsGet_PROJECT():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        return f.readlines()[3].split(":")[1]
     
+def SettingsWrite_PROJECT(path):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    lines = []
+    with open(currentdir + "/Settings/settings.fhist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.fhist", "w") as f:
+        lines[3] = "openproj:" + path + ":\n"
+        f.writelines(lines)

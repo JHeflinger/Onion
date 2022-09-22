@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.updateCurrentTab)
         self.setCentralWidget(self.tabs)
         self.console = ConsoleWindow()
+        self.pExplorer = ProjectExplorer(self)
         self._startup()
         self.show()
     
@@ -50,6 +51,7 @@ class MainWindow(QMainWindow):
         #file menu actions
         self.newFileAction = QAction("&New File (ctrl+n)", self)
         self.openAction = QAction("&Open (ctrl+o)", self)
+        self.openProjectAction = QAction("&Open Project (ctrl+shift+o)", self)
         self.saveAction = QAction("&Save (ctrl+s)", self)
         self.saveAsAction = QAction("&Save As (ctrl+a+s)", self)
         self.shellAction = QAction("&Shell (alt+s)", self)
@@ -58,6 +60,7 @@ class MainWindow(QMainWindow):
         self.shortcutsAction = QAction("&Shortcuts", self)
         #window menu actions
         self.showconsoleAction = QAction("&Show Console (ctrl+shft+c)", self)
+        self.showprojectsAction = QAction("&Show Project Explorer (ctrl+shift+p)", self)
     
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -65,6 +68,7 @@ class MainWindow(QMainWindow):
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(self.newFileAction)
         fileMenu.addAction(self.openAction)
+        fileMenu.addAction(self.openProjectAction)
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.saveAsAction)
         fileMenu.addSeparator()
@@ -76,15 +80,18 @@ class MainWindow(QMainWindow):
         #window menu
         windowsMenu = menuBar.addMenu("&Windows")
         windowsMenu.addAction(self.showconsoleAction)
+        windowsMenu.addAction(self.showprojectsAction)
 
     def _connectActions(self):
         self.openAction.triggered.connect(self.openFile)
+        self.openProjectAction.triggered.connect(self.openProject)
         self.saveAction.triggered.connect(self.save)
         self.saveAsAction.triggered.connect(self.saveAs)
         self.shellAction.triggered.connect(self.openShell)
         self.runAction.triggered.connect(self.runScript)
         self.newFileAction.triggered.connect(self.newFile)
         self.showconsoleAction.triggered.connect(self.showConsole)
+        self.showprojectsAction.triggered.connect(self.showProjects)
       
     def _createShortCuts(self):
         self.shortcut_save = QShortcut(QKeySequence('Ctrl+S'), self)
@@ -101,11 +108,26 @@ class MainWindow(QMainWindow):
         self.shortcut_saveas.activated.connect(self.saveAs)
         self.shortcut_showconsole = QShortcut(QKeySequence('Ctrl+Shift+C'), self)
         self.shortcut_showconsole.activated.connect(self.showConsole)
+        self.shortcut_showprojects = QShortcut(QKeySequence('Ctrl+Shift+P'), self)
+        self.shortcut_showprojects.activated.connect(self.showProjects)
+        self.shortcut_openproject = QShortcut(QKeySequence('Ctrl+Shift+O'), self)
+        self.shortcut_openproject.activated.connect(self.openProject)
+       
+    def openProject(self):
+        print("open!")
+        proj = QFileDialog.getExistingDirectory(self, "Open a folder", "/home", QFileDialog.ShowDirsOnly)
+        #write and then update project explorer
+        onion.SettingsWrite_PROJECT(proj)
+        self.pExplorer.updateProj(proj)
       
     def showConsole(self):
         print("show console!")
-        self.console.setVisible(True)
+        self.console.setVisible(True != self.console.isVisible())
         self.addDockWidget(Qt.BottomDockWidgetArea, self.console)
+
+    def showProjects(self):
+        self.pExplorer.setVisible(True != self.pExplorer.isVisible())
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.pExplorer)
 
     def updateCurrentTab(self, index):
         print(index)
@@ -173,6 +195,43 @@ class MainWindow(QMainWindow):
             except:
                 dlg2 = notifyDialog("ERROR IN EXECUTING SCRIPT")
                 dlg2.exec()
+
+class ProjectExplorer(QDockWidget):
+    def __init__(self, mainwindow):
+        super().__init__()
+        self.layout = QVBoxLayout()
+        self.path = onion.SettingsGet_PROJECT()
+        self.mainwindow = mainwindow
+
+        # setting font to the window
+        fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        fixedfont.setPointSize(11)
+        self.setFont(fixedfont)
+
+        #explorer
+        self.explorer = QTreeView()
+        self.model = QFileSystemModel()
+        self.model.setRootPath("/")
+        self.explorer.setModel(self.model)
+        self.explorer.setRootIndex(self.model.index(self.path))
+        self.explorer.hideColumn(1)
+        self.explorer.hideColumn(2)
+        self.explorer.hideColumn(3)
+        self.explorer.doubleClicked.connect(self.openFile)
+
+        #form layout and frame
+        self.layout.addWidget(self.explorer)
+        self.mainWidget = QFrame()
+        self.mainWidget.setLayout(self.layout)
+        self.setWidget(self.mainWidget)
+
+    def updateProj(self, newpath):
+        self.explorer.setRootIndex(self.model.index(newpath))
+
+    def openFile(self, signal):
+        path = self.explorer.model().filePath(signal)
+        if os.path.isfile(path):
+            self.mainwindow.openFileByName(path)
 
 class ConsoleWindow(QDockWidget):
     def __init__(self):
