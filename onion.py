@@ -26,19 +26,34 @@ def RunScript(scriptcontent, scriptname, console):
         except:
             return False
     elif filetype == "java":
-        print("java")
+        console.consoleOutput("Compiling Java...")
         try:
             filename = scriptname.split("/")[len(scriptname.split("/")) - 1].split(".")[0]
             pathname = scriptname[0:len(scriptname) - len(filename) - 6]
-            print(filename)
-            print(pathname)
             os.system("javac " + scriptname)
+            console.consoleOutput("Compiled!")
+            console.consoleOutput("Running java file")
             cmd = ['java', '-cp', pathname, filename]
             output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
             console.consoleOutput(output.decode("utf-8"))
             return True
         except:
-            print(exception)
+            console.consoleOutput(Exception)
+            return False
+    elif filetype == "cpp":
+        print("cPP")
+        try:
+            filename = scriptname.split("/")[len(scriptname.split("/")) - 1].split(".")[0]
+            pathname = scriptname[0:len(scriptname) - len(filename) - 5]
+            cmd = ['g++', '-o', pathname + '/a.out', scriptname]
+            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            console.consoleOutput(output.decode("utf-8"))
+            cmd = [pathname + '/a.out']
+            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            console.consoleOutput(output.decode("utf-8"))
+            return True
+        except:
+            console.consoleOutput(Exception)
             return False
     else:
         return False
