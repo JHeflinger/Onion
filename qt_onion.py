@@ -128,6 +128,7 @@ class MainWindow(QMainWindow):
             self.console.consoleOutput("setting new project settings")
             onion.SettingsWrite_PROJLANG(dlg.lang.text())
             onion.SettingsWrite_PROJCONTENT(dlg.content.toPlainText())
+            onion.SettingsWrite_PROJDEST(dlg.dest.text())
 
     def runProject(self):
         self.console.consoleOutput("running project")
@@ -405,10 +406,14 @@ class ProjectConfigDialog(QDialog):
         self.contentLabel = QLabel("Project Files")
         self.content = QPlainTextEdit(onion.SettingsGet_PROJCONTENT().replace("?", "\n"))
         self.content.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.destLabel = QLabel("Project Destination")
+        self.dest = QLineEdit(onion.SettingsGet_PROJDEST())
         self.layout.addWidget(self.langLabel)
         self.layout.addWidget(self.lang)
         self.layout.addWidget(self.contentLabel)
         self.layout.addWidget(self.content)
+        self.layout.addWidget(self.destLabel)
+        self.layout.addWidget(self.dest)
         self.layout.addWidget(self.buttonBox)
         self.setLayout(self.layout)
 

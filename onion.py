@@ -136,18 +136,32 @@ def SettingsWrite_PROJCONTENT(txt):
         lines[1] = "files:" + txt.replace("\n", "?") + ":\n"
         f.writelines(lines)
 
+def SettingsGet_PROJDEST():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        return f.readlines()[2].split(":")[1]
+
+def SettingsWrite_PROJDEST(path):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    lines = []
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.phist", "w") as f:
+        lines[2] = "dest:" + path + ":\n"
+        f.writelines(lines)
+
 def RunProject(console):
     #currently supported project types:
     #C++, SDL2
     #'g++ TextureManager.cpp Vector2D.cpp Collision.cpp ECS/ECS.cpp Map.cpp Game.cpp main.cpp -lSDL2 -lSDL2main -lSDL2_image -o testme'
     files = SettingsGet_PROJCONTENT().split("?")
     flags = SettingsGet_PROJLANG().split(",")
+    dest = SettingsGet_PROJDEST()
     for i in range(len(flags)):
         flags[i] = flags[i].strip()
-    currentdir = os.path.dirname(os.path.abspath(__file__))
     if "C++" in flags:
         console.consoleOutput("Compiling C++ project...")
-        cmd = ["g++", "-o", currentdir + "/TMP/a.out"]
+        cmd = ["g++", "-o", dest + "/a.out"]
         if "SDL2" in flags:
             cmd.insert(1, "-lSDL2_image")
             cmd.insert(1, "-lSDL2main")
@@ -160,8 +174,8 @@ def RunProject(console):
             output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
             console.consoleOutput(output.decode("utf-8"))
             console.consoleOutput("Running project...")
-            cmd = [currentdir + "/TMP/a.out"]
-            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            cmd = [".//a.out"]
+            output = subprocess.Popen(cmd, cwd=dest, stdout=subprocess.PIPE).communicate()[0]
             console.consoleOutput(output.decode("utf-8"))
             console.consoleOutput("Finished project!")
             return True

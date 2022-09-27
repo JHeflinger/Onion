@@ -1,23 +1,14 @@
 add open recent
-DEBUG LOg
-?Run scripts (python, etc)
-shell should be in console form
-add shell
-add console
+DEBUG LOG
 DARK MODE!!
 add smart highlighting
 smart tab uses 4 spaces instead based on file format
-command line open file (onion text.txt)
-project explorer
-open project/folder
 QSYNTAXHIGHLIGHTER
 collapsable functions/classes
 MACROS?!?
-remember last directory opened
 be able to edit shortcuts
 check if file changes were made outside of editor and reload file accordingly
 control f and replace
-connect ide output to console
 make terminal support a continuous shell, not just a single command
 add actual commands to console
 ....spell check?
@@ -25,9 +16,14 @@ error handling!
 
 your right click menu is kinda weird lol
 
-GET SDL2 RUNNING AND WE CAN INTEGRATE THAT FIRST!!!
-maybe make a configuration to run a set makefile or somethin!
 And then taproot ig
+
+set project so compile and link only updated files on project!, or at the very least don't make it compile if you havent changed anything lol.
+asynchronous calls for terminal and console text!
+
+configure project window should be able to import project settings, open file explorer to select destination and files to compile
+
+python breakpoints and stepping for debug should be easy
 
 Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order
