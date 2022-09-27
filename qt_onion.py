@@ -56,11 +56,13 @@ class MainWindow(QMainWindow):
         self.saveAsAction = QAction("&Save As (ctrl+a+s)", self)
         self.shellAction = QAction("&Shell (alt+s)", self)
         self.runAction = QAction("&Run Script(ctrl+r)", self)
+        self.runProjectAction = QAction("&Run Project(ctrl+shift+r)", self)
         #settings menu actions
         self.shortcutsAction = QAction("&Shortcuts", self)
+        self.projconfigAction = QAction("&Configure Project", self)
         #window menu actions
         self.showconsoleAction = QAction("&Show Console (ctrl+shft+c)", self)
-        self.showprojectsAction = QAction("&Show Project Explorer (ctrl+shift+p)", self)
+        self.showprojectsAction = QAction("&Show File Explorer (ctrl+shift+p)", self)
     
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -74,9 +76,11 @@ class MainWindow(QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.shellAction)
         fileMenu.addAction(self.runAction)
+        fileMenu.addAction(self.runProjectAction)
         #settings menu
         settingsMenu = menuBar.addMenu("&Settings")
         settingsMenu.addAction(self.shortcutsAction)	
+        settingsMenu.addAction(self.projconfigAction)
         #window menu
         windowsMenu = menuBar.addMenu("&Windows")
         windowsMenu.addAction(self.showconsoleAction)
@@ -89,9 +93,11 @@ class MainWindow(QMainWindow):
         self.saveAsAction.triggered.connect(self.saveAs)
         self.shellAction.triggered.connect(self.openShell)
         self.runAction.triggered.connect(self.runScript)
+        self.runProjectAction.triggered.connect(self.runProject)
         self.newFileAction.triggered.connect(self.newFile)
         self.showconsoleAction.triggered.connect(self.showConsole)
         self.showprojectsAction.triggered.connect(self.showProjects)
+        self.projconfigAction.triggered.connect(self.configProject)
       
     def _createShortCuts(self):
         self.shortcut_save = QShortcut(QKeySequence('Ctrl+S'), self)
@@ -102,6 +108,8 @@ class MainWindow(QMainWindow):
         self.shortcut_shell.activated.connect(self.openShell)
         self.shortcut_run = QShortcut(QKeySequence('Ctrl+R'), self)
         self.shortcut_run.activated.connect(self.runScript)
+        self.shortcut_runproject = QShortcut(QKeySequence('Ctrl+Shift+R'), self)
+        self.shortcut_runproject.activated.connect(self.runProject)
         self.shortcut_new = QShortcut(QKeySequence('Ctrl+N'), self)
         self.shortcut_new.activated.connect(self.newFile)
         self.shortcut_saveas = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
@@ -113,6 +121,18 @@ class MainWindow(QMainWindow):
         self.shortcut_openproject = QShortcut(QKeySequence('Ctrl+Shift+O'), self)
         self.shortcut_openproject.activated.connect(self.openProject)
        
+    def configProject(self):
+        self.console.consoleOutput("configuring Project")
+        dlg = ProjectConfigDialog()
+        if dlg.exec():
+            self.console.consoleOutput("setting new project settings")
+            onion.SettingsWrite_PROJLANG(dlg.lang.text())
+            onion.SettingsWrite_PROJCONTENT(dlg.content.toPlainText())
+
+    def runProject(self):
+        self.console.consoleOutput("running project")
+        onion.RunProject(self.console)
+
     def openProject(self):
         print("open!")
         proj = QFileDialog.getExistingDirectory(self, "Open a folder", "/home", QFileDialog.ShowDirsOnly)
@@ -169,7 +189,7 @@ class MainWindow(QMainWindow):
         onion.SettingsWrite_OPENED(self.openfiles)
 
     def openFile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file', 'c:\\')
+        fname = QFileDialog.getOpenFileName(self, 'Open file')
         if fname[0] != "":
             if self.navigateToFile(fname[0]):
                 return
@@ -370,6 +390,27 @@ class ConsoleWindow(QDockWidget):
                 self.terminalOutput(process.stderr)
             else:
                 self.terminalOutput(process.stdout)
+
+class ProjectConfigDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Set Project Configuration")
+        QBtn = QDialogButtonBox.Cancel | QDialogButtonBox.Ok
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        self.layout = QVBoxLayout()
+        self.langLabel = QLabel("Project Language")
+        self.lang = QLineEdit(onion.SettingsGet_PROJLANG())
+        self.contentLabel = QLabel("Project Files")
+        self.content = QPlainTextEdit(onion.SettingsGet_PROJCONTENT().replace("?", "\n"))
+        self.content.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.layout.addWidget(self.langLabel)
+        self.layout.addWidget(self.lang)
+        self.layout.addWidget(self.contentLabel)
+        self.layout.addWidget(self.content)
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
 
 class NotifyDialog(QDialog):
     def __init__(self, msg):

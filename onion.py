@@ -17,7 +17,7 @@ def SaveFile(saved, filecontent, filename):
 
 def RunScript(scriptcontent, scriptname, console):
     #currently supported script types:
-    #python
+    #python, Java, C++/C
     filetype = scriptname.split(".")[len(scriptname.split(".")) - 1]
     if filetype == "py":
         try:
@@ -107,3 +107,66 @@ def SettingsWrite_PROJECT(path):
     with open(currentdir + "/Settings/settings.fhist", "w") as f:
         lines[3] = "openproj:" + path + ":\n"
         f.writelines(lines)
+
+def SettingsGet_PROJLANG():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        return f.readlines()[0].split(":")[1]
+
+def SettingsWrite_PROJLANG(txt):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    lines = []
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.phist", "w") as f:
+        lines[0] = "lang:" + txt + ":\n"
+        f.writelines(lines)
+
+def SettingsGet_PROJCONTENT():
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        return f.readlines()[1].split(":")[1]
+
+def SettingsWrite_PROJCONTENT(txt):
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    lines = []
+    with open(currentdir + "/Settings/settings.phist", "r") as f:
+        lines = f.readlines()
+    with open(currentdir + "/Settings/settings.phist", "w") as f:
+        lines[1] = "files:" + txt.replace("\n", "?") + ":\n"
+        f.writelines(lines)
+
+def RunProject(console):
+    #currently supported project types:
+    #C++, SDL2
+    #'g++ TextureManager.cpp Vector2D.cpp Collision.cpp ECS/ECS.cpp Map.cpp Game.cpp main.cpp -lSDL2 -lSDL2main -lSDL2_image -o testme'
+    files = SettingsGet_PROJCONTENT().split("?")
+    flags = SettingsGet_PROJLANG().split(",")
+    for i in range(len(flags)):
+        flags[i] = flags[i].strip()
+    currentdir = os.path.dirname(os.path.abspath(__file__))
+    if "C++" in flags:
+        console.consoleOutput("Compiling C++ project...")
+        cmd = ["g++", "-o", currentdir + "/TMP/a.out"]
+        if "SDL2" in flags:
+            cmd.insert(1, "-lSDL2_image")
+            cmd.insert(1, "-lSDL2main")
+            cmd.insert(1, "-lSDL2")
+        for f in files:
+            if f != "":
+                cmd.insert(1, f)
+        console.consoleOutput("compiling project...")
+        try:
+            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            console.consoleOutput(output.decode("utf-8"))
+            console.consoleOutput("Running project...")
+            cmd = [currentdir + "/TMP/a.out"]
+            output = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+            console.consoleOutput(output.decode("utf-8"))
+            console.consoleOutput("Finished project!")
+            return True
+        except:
+            console.consoleOutput(Exception)
+            return False
+    else:
+        return False
