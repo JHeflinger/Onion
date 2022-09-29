@@ -159,7 +159,22 @@ def RunProject(console):
     dest = SettingsGet_PROJDEST()
     for i in range(len(flags)):
         flags[i] = flags[i].strip()
-    if "C++" in flags:
+    if "CLI" in flags:
+        console.consoleOutput("Running CLI project...")
+        cmd = ""
+        for f in files:
+            cmd += f + "; "
+        cmd = cmd[0:len(cmd) - 2]
+        console.consoleOutput(cmd)
+        try:
+            output = subprocess.run(cmd, cwd=dest, stdout=subprocess.PIPE, shell=True).__str__()
+            console.consoleOutput(output)
+            console.consoleOutput("Finished project!")
+            return True
+        except:
+            console.consoleOutput(Exception)
+            return False
+    elif "C++" in flags:
         console.consoleOutput("Compiling C++ project...")
         cmd = ["g++", "-o", dest + "/a.out"]
         if "SDL2" in flags:
