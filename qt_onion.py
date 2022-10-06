@@ -25,19 +25,30 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.tabs)
         self.console = ConsoleWindow()
         self.pExplorer = ProjectExplorer(self)
+        self._setPalette()
         self._startup()
         self.show()
-    
-    def closeEvent(self, event):
-        unsavedwork = False
-        for i in range(self.tabs.count()):
-            if self.tabs.widget(i).saved == False:
-                unsavedwork = True
-        if unsavedwork:
-            dlg = ConfirmDialog("You have unsaved work! Would you like to go back and save your work?")
-            if dlg.exec():
-                event.ignore()
-            
+         
+    def _setPalette(self):
+        #tabs
+        stylesheet = """ 
+            QTabBar::tab:selected {background: #1E1E40; color: #D4D4D4;}
+            QTabBar::tab {background: #3D3D3D; color: #BFBFBF;}
+            QTabWidget>QWidget>QWidget{background: #1E1E40; color: #D4D4D4;}
+            """
+        self.tabs.setStyleSheet(stylesheet)
+        #menubar
+        stylesheet = """ 
+            QMenuBar {background: #292929; color: #D4D4D4;}
+            """
+        self.menuBar().setStyleSheet(stylesheet)
+        #main window
+        stylesheet = """ 
+            QMainWindow {background: #1F0505;}
+            QMainWindow>QWidget {background: black;}
+            """
+        self.setStyleSheet(stylesheet)
+   
     def _startup(self):
         print("startup sequence")
         opened_files = onion.SettingsGet_OPENED()
@@ -120,7 +131,17 @@ class MainWindow(QMainWindow):
         self.shortcut_showprojects.activated.connect(self.showProjects)
         self.shortcut_openproject = QShortcut(QKeySequence('Ctrl+Shift+O'), self)
         self.shortcut_openproject.activated.connect(self.openProject)
-       
+   
+    def closeEvent(self, event):
+        unsavedwork = False
+        for i in range(self.tabs.count()):
+            if self.tabs.widget(i).saved == False:
+                unsavedwork = True
+        if unsavedwork:
+            dlg = ConfirmDialog("You have unsaved work! Would you like to go back and save your work?")
+            if dlg.exec():
+                event.ignore()
+    
     def configProject(self):
         self.console.consoleOutput("configuring Project")
         dlg = ProjectConfigDialog()
@@ -479,7 +500,7 @@ class EditorWindow(QPlainTextEdit):
         
         #set up save mirroring
         self.saved = True
-        self.textChanged.connect(self.unsave)
+        self.textChanged.connect(self.changedText)
         
         # setting font to the editor
         fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -495,6 +516,12 @@ class EditorWindow(QPlainTextEdit):
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
         self.updateLineNumberAreaWidth(0)
+
+        #set palette
+        self.colorPalette()
+
+    def colorPalette(self):
+        print("setting tab palette")
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -525,7 +552,7 @@ class EditorWindow(QPlainTextEdit):
         extraSelections = []
         if not self.isReadOnly():
             selection = QTextEdit.ExtraSelection()
-            lineColor = QColor(Qt.cyan).lighter(160)
+            lineColor = QColor(Qt.red).darker(160)
             selection.format.setBackground(lineColor)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
@@ -535,7 +562,9 @@ class EditorWindow(QPlainTextEdit):
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QPainter(self.lineNumberArea)
-        painter.fillRect(event.rect(), Qt.lightGray)
+        painter_color = QColor()
+        painter_color.setRgb(61, 61, 61)
+        painter.fillRect(event.rect(), painter_color)
 
         block = self.firstVisibleBlock()
         blockNumber = block.blockNumber()
@@ -547,7 +576,8 @@ class EditorWindow(QPlainTextEdit):
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(blockNumber + 1)
-                painter.setPen(Qt.black)
+                painter_color.setRgb(212, 212, 212)
+                painter.setPen(painter_color)
                 painter.drawText(0, int(top), self.lineNumberArea.width(), height, Qt.AlignRight, number + " ")
 
             block = block.next()
@@ -560,6 +590,38 @@ class EditorWindow(QPlainTextEdit):
         if not success:
             print("error. script failed to run.")
         
+    def changedText(self):
+        self.unsave()
+        self.tabToSpaces()
+        self.pySmartReturn()
+
+    def tabToSpaces(self):
+        if self.getCursorChar() == '\t':
+            self.textCursor().deletePreviousChar()
+            self.insertPlainText("    ")
+
+    def pySmartReturn(self):
+        if self.getCurrLine() == "":
+            prevline = self.getLineByNum(self.textCursor().blockNumber() - 1)
+            spaces = 0
+            for c in prevline:
+                if c != " ":
+                    break
+                spaces += 1
+            spacestr = ""
+            for i in range(spaces):
+                spacestr += " "
+            self.insertPlainText(spacestr)
+
+    def getLineByNum(self, linenum):
+        return self.document().findBlockByLineNumber(linenum).text()
+
+    def getCurrLine(self):
+        return self.textCursor().block().text()
+
+    def getCursorChar(self):
+        return self.document().characterAt(self.textCursor().position() - 1)
+
     def unsave(self):
         if self.saved:
             self.tabWidget.setTabText(self.tabWidget.currentIndex(), self.tabWidget.tabText(self.tabWidget.currentIndex()) + "*")

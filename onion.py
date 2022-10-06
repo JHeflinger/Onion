@@ -64,7 +64,10 @@ def SettingsWrite_OPENED(files):
     writestring = "openfiles:"
     for f in files:
         writestring += (f + "?")
-    writestring = writestring[0:len(writestring) - 1] + ":\n"
+    if writestring != "openfiles:":
+        writestring = writestring[0:len(writestring) - 1] + ":\n"
+    else:
+        writestring = "openfiles::\n"
     lines = []
     with open(currentdir + "/Settings/settings.fhist", "r") as f:
         lines = f.readlines()

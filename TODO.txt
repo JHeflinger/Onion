@@ -13,10 +13,11 @@ make terminal support a continuous shell, not just a single command
 add actual commands to console
 ....spell check?
 error handling!
-
+add icons onto files? hm?
+run bash scripts
 your right click menu is kinda weird lol
 
-And then taproot ig
+maybe separate build and run commands?
 
 set project so compile and link only updated files on project!, or at the very least don't make it compile if you havent changed anything lol.
 asynchronous calls for terminal and console text!
@@ -29,7 +30,10 @@ Bug log:
 	- when rearranging tabs, opening new onion doesn't save the new order
 	- toggles unsave when typing outside of the widget..
 	- resets a file to a blank file sometimes? (probably because im editing source files in two editors at once, it resets the openfiles)
+	- cannot open if all files were closed 
 
 Add README with dependancies
 -pyqt5
 -pyqtconsole
+
+color settings -> color everythong -> syntaxhighlighter
